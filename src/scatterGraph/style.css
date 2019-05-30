@@ -1,0 +1,40 @@
+.chart text{
+    font-size: 11px
+      
+  }
+
+  .details{
+    background-color: lightgrey;
+    font-size: 12px;
+    position: relative;
+    padding: 10px;
+    left: 100px;
+    top: -550px;
+    max-width: 150px;
+    opacity: 0;
+    text-align: left;
+  }
+    
+
+.container
+  {max-width: 850px;
+  text-align: center}
+
+
+
+
+.tooltip__container {
+  box-shadow: 2px 2px 2px gray;
+  color: #111;
+  /* background-color: rgba($base-color, 0.85); */
+  border-radius: 2px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  padding: 0.4rem 0.3rem;
+  transition: all 0.1s;
+  pointer-events: none;
+
+  /* & span {
+    font-weight: normal;
+  } */
+}
