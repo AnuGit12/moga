@@ -1,8 +1,10 @@
 import * as d3 from 'd3';
-import React from 'react';
+import React, { useState,useContext } from 'react';
 import './style.css'
 import {  Row, Col} from 'reactstrap';
 import { DropdownToggle, DropdownMenu, DropdownItem , UncontrolledButtonDropdown,Label} from 'reactstrap';
+import SliderContext from '../context/sliderContext';
+
 
 class GraphMOga extends React.Component {
     constructor(props){
@@ -19,8 +21,7 @@ class GraphMOga extends React.Component {
         xValue:[],
         sValue:[],
         
-        x_val:[],
-        y_val:[]
+        slider_col:[]
 
 
       }
@@ -29,62 +30,30 @@ class GraphMOga extends React.Component {
     }
 
     setData = () =>{
-      console.log("data from state------------------------------------------")
-      console.log(typeof(JSON.parse(this.state.xValue[0])))
-      console.log(this.state.yValue)
-      // let graph_domain=[]
-      this.setState({
-        x_val:(this.state.xValue).map(num => Number(num)),
-        y_val:(this.state.yValue).map(num => Number(num))
-
-      })
-
-      // if (xValue){
-
-      
-      // var x_domain_min =  Math.min.apply(Math,JSON.parse(this.state.xValue).map(Number))
-      // var x_domain_max =  Math.min(xValue)
-      // var y_domain_min =  Math.max(yValue)
-      // var y_domain_max =  Math.min(yValue)
-
-      // console.log(">>??>>",x_domain_min)
-      // }
-      // var stateCopy = Object.assign({}, this.state.graph_domain);
-      // stateCopy.graph_domain[key].xmin = x_domain_min;
-      // stateCopy.graph_domain[key].xmax = x_domain_max;
-      // stateCopy.graph_domain[key].ymin = y_domain_min;
-      // stateCopy.graph_domain[key].ymax = y_domain_max;
-
-      // this.setState(stateCopy);
-
-
-
-
-      // console.log( Math.min(...xValue))
+     
 
       const { xValue, yValue } = this.state;
-      
-      
-      // console.log("data from setdata function", this.state.data)
-      // console.log(typeof(this.state.data))
+     
+      var index_of_slider = (this.props.propsData.length).indexOf(this.context.activeSliderName)
+      debugger;
+      console.log("index_of_slider",index_of_slider)
+      var slider_col = []
+      this.props.propsData.data.map((item, key) =>
+        
+        slider_col.push(item[index_of_slider])
 
-      var d = [
-        {"x":0.122584,"y":0.353008,"c":0.355928},
-        {"x":0.243913,"y":-0.591662,"c":0.355928},
-        {"x":0.122584,"y":-0.626392,"c":0.346507},
-        {"x":0.164663,"y":-0.131016,"c":0.703251},
-        {"x":0.243913,"y":-0.356120,"c":0.599739},
-        {"x":0.237486,"y":-0.131016,"c":0.512527},
-        {"x":.132584,"y":.253008,"c":.235928},
-        {"x":.152584,"y":.453008,"c":.125928},
-        {"x":.112584,"y":.363008,"c":.235928},
-        {"x":.162584,"y":.393008,"c":.125928}
-  
-      ]
+       )
+
+      let temp_data= xValue.map((x, i) => ({ x, y: yValue[i]}))
+
+      temp_data.map((val,i) => val.slider_col = slider_col[i])
+      console.log(temp_data, '!@#', slider_col)
       this.setState({
-        // data: xValue.map((x, i) => ({ x, y: yValue[i] ,c:0})),
-        data:d
+        data: temp_data,
+        // data:d
       })
+
+      console.log("??@@",this.props.propsData)
       // console.log("data from setdata function"+d)
       console.log("!!",this.state.data)
 
@@ -95,9 +64,10 @@ class GraphMOga extends React.Component {
         dropdownOpen: !prevState.dropdownOpen
       }));
     };
+
     handleChange1 =(e) =>{
       var t = [{'s':3},{'s':4}]
-      console.log("cheking type "+ typeof(this.state.data))
+      console.log("cheking type ", (this.state.data))
       console.log("data from handle one"+JSON.stringify(this.state.data, null, 2))
         let x=[]
         var len1 = this.props.propsData.length.indexOf(e.currentTarget.textContent)
@@ -111,12 +81,21 @@ class GraphMOga extends React.Component {
     //     selectValue1:e.currentTarget.textContent,
     //     xValue:x
     // });
-    this.setState({
-      selectValue1:e.currentTarget.textContent,
-      xValue:x
-  }, () => {
-    this.setData()
-    }); 
+      const contextValue = this.context;
+      console.log("^^^", this.state.data)
+    console.log("yvalye from state" , this.state.yValue)
+     
+        this.setState({
+          selectValue1:e.currentTarget.textContent,
+          xValue:x
+      }, () => {
+        // if(this.state.yValue !=null ){
+        //   console.log('$$$$')
+        // this.setData()
+        // }
+        }); 
+      
+    
     console.log("123321")
     console.log(this.props.propsData.slider_data[0])
     
@@ -135,70 +114,80 @@ class GraphMOga extends React.Component {
 
        )
        console.log("final value of y is"+y)
-
+       
        this.setState({
         selectValue2:e.currentTarget.textContent,
         yValue:y
     }, () => {
+ 
       this.setData()
+      
       }); 
-
-  //   this.setState({
-  //     selectValue2:e.currentTarget.textContent,
-  //     yValue:y
-  // })
-  // this.setData()
-
+ 
   };
     
       componentDidUpdate() {
-      
+        var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("background", "red")
+        .style("opacity", 0);
 
       const height = 400,
               width = 500,
               margins = {top: 20, right: 100, bottom: 50, left: 50};
-        
+        const xscale1 = Math.min.apply(Math,this.state.xValue.map(Number))
+        const xscale2 = Math.max.apply(Math,this.state.xValue.map(Number))
+        const yscale1 = Math.min.apply(Math,this.state.yValue.map(Number))
+        const yscale2 = Math.max.apply(Math,this.state.yValue.map(Number))
+
+
+
         const chart = d3.select('.chart')
           .attr('width', width + margins.left + margins.right)
           .attr('height', height + margins.top + margins.bottom)
           .append('g')
           .attr('transform','translate(' + margins.left + ',' + margins.top + ')');
-        
-        
-        const xScale = d3.scaleLinear()
-          .range([0,width])
-          .domain([Math.min.apply(Math,this.state.x_val.map(Number)), Math.max.apply(Math,this.state.x_val.map(Number)) ]);
-
-        
-        const yScale = d3.scaleLinear()
-          .range([height,0])
+          var yScale = d3.scaleLinear()
+          .rangeRound([0,height])
+          .domain([yscale2,yscale1]);
+          var xScale = d3.scaleLinear()
+          .rangeRound([0,width])
+          .domain([xscale1,xscale2]);
           
-          .domain([Math.min.apply(Math,this.state.y_val.map(Number)), Math.max.apply(Math,this.state.y_val.map(Number)) ]);
-  
+          
+        
         const dots = chart.selectAll('dot')
-          .data(this.state.data, null, 2)
+          .data(this.state.xValue.length && this.state.yValue.length ? this.state.data : [], null, 2)
           .enter().append('circle')
           .attr('r', 5)
           .attr('cx', d => {return xScale(d.x); })
           .attr('cy', d => {return yScale(d.y)})
-          .style('fill', d => {
+          .style('fill', () => {
           for (var i=0; i<this.state.data.length; i++){
-            var point1= this.props.propsData.selected_slider_data.point1
-            var point2= this.props.propsData.selected_slider_data.point2
-            var point3= this.props.propsData.selected_slider_data.point3
-            var point4= this.props.propsData.selected_slider_data.point4
-            var point5= this.props.propsData.selected_slider_data.point5
-            if (this.state.data[i].c>point1 && this.state.data[i].c<point2 ){
-              return 'green';
-            }else if(this.state.data[i].c>point2 && this.state.data[i].c<point3){
-              return 'blue'
-            }else if(this.state.data[i].c>point3 && this.state.data[i].c<point4){
-              return 'yellow'
-            }else if(this.state.data[i].c>point4 && this.state.data[i].c<point5){
-              return 'red'
-            }else{
-              return 'black'
+            var slider_val =this.context.sliderData.find(val => val[this.context.activeSliderName])
+            console.log(slider_val, 'slider value!', this.state.data)
+            if (slider_val) {
+              var point1= Object.values(slider_val)[0].point1
+              var point2= Object.values(slider_val)[0].point2
+              var point3= Object.values(slider_val)[0].point3
+              var point4= Object.values(slider_val)[0].point4
+              var point5= Object.values(slider_val)[0].point5
+               if (this.state.data[i].slider_col>point1 && this.state.data[i].slider_col<point2 ){
+                return 'green';
+              }else if(this.state.data[i].slider_col>point2 && this.state.data[i].slider_col<point3){
+                return 'blue'
+              }else if(this.state.data[i].slider_col>point3 && this.state.data[i].slider_col<point4){
+                return 'yellow'
+              }else if(this.state.data[i].slider_col>point4 && this.state.data[i].slider_col<point5){
+                return 'red'
+              }else{
+                return 'black'
+              } 
             }
+            else {
+              return 'black';
+            }
+
 
             }
             
@@ -207,21 +196,22 @@ class GraphMOga extends React.Component {
           
           });
         
-        const details = d3.select('.container').append('div')
-          .attr('class','details')
-          .html('Details');
-    
-    
-    
-        dots.on('mouseover', d => {
-            
-          details.html(
-            d.x + ','+ d.y)
-            .style('opacity', 1);
-        }).on('mouseout', () => {
-          details.style('opacity', 0);  
-        });
         
+    
+        dots.on("mouseover", d => {
+          tooltip.transition()
+             .duration(50)
+             .style("opacity", .9);
+          tooltip.html("x "+d.x+ "  y "+d.y)
+             .style("left", (d3.event.pageX + 10) + "px")
+             .style("top", (d3.event.pageY - 28) + "px");
+        })
+        .on("mouseout", function(d) {
+          tooltip.transition()
+             .duration(50)
+             .style("opacity", 0);
+        });
+    
         chart.selectAll('text')
           .data(this.state.data, null, 2)
           .enter().append('text')
@@ -286,7 +276,9 @@ class GraphMOga extends React.Component {
     
     render() {
       return (
-        <div className="container">
+        <SliderContext.Consumer>
+          {context => (
+            <div className="container">
         <Row>
                     <Col sm="6">
                     
@@ -341,9 +333,12 @@ class GraphMOga extends React.Component {
         </Row>
           
         </div>
+          )}
+        </SliderContext.Consumer>
       );
     }
   }
-  
+  GraphMOga.contextType = SliderContext;
+
 
 export default GraphMOga;
