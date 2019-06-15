@@ -6,7 +6,8 @@ import { DropdownToggle, DropdownMenu, DropdownItem , UncontrolledButtonDropdown
 import SliderContext from '../context/sliderContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCamera, faSearchPlus, faSearchMinus, faMousePointer, faArrowsAlt} from '@fortawesome/free-solid-svg-icons'
-
+import domtoimage from 'dom-to-image';
+import { saveAs } from 'file-saver';
 
 class GraphMOga extends React.Component {
     constructor(props){
@@ -29,7 +30,9 @@ class GraphMOga extends React.Component {
       }
       const dur = Math.floor(Math.random() * 500 + 1000)
       this.transition = d3.transition().duration(dur).ease(d3.easeCubicInOut);
+
     }
+    
 
     setData = () =>{
       const { xValue, yValue } = this.state;
@@ -168,8 +171,45 @@ class GraphMOga extends React.Component {
                 }
           })
         }
+
     
-      
+      //   downloadGraphImage=()=>{
+      // const node = document.getElementById('my-chart');
+      // console.log("PP",node)
+
+      //     domtoimage.toPng(node)
+      //     .then(function (dataUrl) {
+      //         var img = new Image();
+      //         img.src = dataUrl;
+      //         document.body.appendChild(img);
+      //     this.saveJpg()
+
+      //     })
+      //     .catch(function (error) {
+      //         console.error('oops, something went wrong!', error);
+      //     });
+      //   }
+
+        downloadGraphImage=()=>{
+      console.log("PP+",document.getElementById('my-chart'))
+    //   domtoimage.toBlob(document.getElementById('my-chart'))
+    // .then(function (blob) {
+    //     saveAs(blob, 'my-node.png');
+    // });
+
+    domtoimage.toBlob(document.getElementById('my-chart'))
+    .then(function (blob) {
+        window.saveAs(blob, 'my-node.png');
+    });
+
+    //       domtoimage.toJpeg(document.getElementById('my-chart'), { quality: 0.95 })
+    // .then(function (dataUrl) {
+    //     var link = document.createElement('a');
+    //     link.download = 'my-image-name.jpeg';
+    //     link.href = dataUrl;
+    //     link.click();
+    // });
+        }
     componentDidUpdate() {
         var mySelectedArray = [];
 
@@ -350,20 +390,26 @@ class GraphMOga extends React.Component {
         .on("end",lasso_end);
         
           chart.call(lasso);
+
+          
   
     }
 
 
     
     render() {
-  
      const sliderDataYmax =[]
      Object.entries(this.context.sliderData).map(([name, info]) =>
         (
           sliderDataYmax.push(Object.keys(this.context.sliderData[name]))
          )
       )
-                   
+
+      if (this.context.sliderData.length) debugger;
+      const buttonNames = _.flatten(_.map(this.context.sliderData, x => {
+        return _.keys(x);
+      }))
+      
       return (
         <SliderContext.Consumer>
           {context => {
@@ -421,11 +467,21 @@ class GraphMOga extends React.Component {
                       </ButtonGroup>
                   </Row>
               <Row >
-              <svg className='chart'></svg>
+                <div id='my-chart'>
+                  <svg className='chart'> </svg>
+
+                </div>
               </Row>
               <Row>
                 <Label for="exampleEmail">Color Variables</Label>
                 <ButtonGroup>
+                  {
+                    _.map(buttonNames, name => 
+                      <Button onClick={() => this.context.updateState({activeSliderName: name})}>
+                        {name}
+                      </Button>
+                    )
+                  }
                   <Button onClick={this.YmaxCall}>Ymax</Button>
                 </ButtonGroup>
               </Row>
