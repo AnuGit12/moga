@@ -4,6 +4,8 @@ import './style.css'
 import TableData from './table.jsx';
 import Papa from 'papaparse';
 import Graph from './graph.jsx'
+import SliderProvider from './context/sliderProvider.jsx';
+
 import SliderContext from './context/sliderContext';
 
 import * as _ from 'lodash';
@@ -250,12 +252,10 @@ class Panel extends React.PureComponent {
     }
 
     return (
-      <div>
-        <React.Fragment>
           <Row>
             <Col xs="12">
               <Row>
-                <Col xs="6">
+                <Col md="12">
                   <Card body outline color="primary">
                     <div className="App">
                       <div>
@@ -298,15 +298,12 @@ class Panel extends React.PureComponent {
                     </div>
                   </Card>
                 </Col>
-                <Col xs="6">
+                {/* <Col xs="6">
                   <Graph  {...props} />
-                </Col>
+                </Col> */}
               </Row>
             </Col>
           </Row>
-        </React.Fragment>
-      </div>
-
     )
   };
 };
