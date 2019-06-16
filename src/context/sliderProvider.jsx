@@ -20,12 +20,12 @@ export default class SliderProvider extends Component {
   };
 
   render() {
-    const { sliderData, activeSliderName } = this.state;
+    const { sliderData, activeSliderName, selectedDropdown } = this.state;
     const { updateState } = this;
     console.log(this.props.children, 'in providerrrrr');
 
     return (
-      <SliderContext.Provider value={{ sliderData, activeSliderName, updateState }}>
+      <SliderContext.Provider value={{ sliderData, activeSliderName, updateState, selectedDropdown }}>
         {this.props.children}
       </SliderContext.Provider>
     );

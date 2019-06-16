@@ -1,10 +1,12 @@
 import React from 'react';
-import { Card, Button, CardTitle, CardText, Row, Col, InputGroup, InputGroupAddon, Input, Form, Table } from 'reactstrap';
-import './style.css'
+import { Card, Button, CardTitle,FormGroup, Label, CardText, Modal, ModalHeader, ModalBody, ModalFooter,Row, Col, InputGroup, InputGroupAddon, Input, Form, Table } from 'reactstrap';
+import './style.css';
+import { Api } from './utils/api';
 import TableData from './table.jsx';
 import Papa from 'papaparse';
-import Graph from './graph.jsx'
+import Graph from './graph.jsx';
 import SliderContext from './context/sliderContext';
+
 
 import * as _ from 'lodash';
 
@@ -20,16 +22,72 @@ class Panel extends React.PureComponent {
       constraint: '',
       ymax_arr: [],
       selected_slider_data: [],
-      selected_dots: []
+      selected_dots: [],
+      modal: false
+      
     };
 
     this.key = [];
     this.data = [];
+    // this.selected_dropdown= {'1':'','2':''}
     this.updateData = this.updateData.bind(this);
+    this.toggle = this.toggle.bind(this);
+    this.saveState = this.saveState.bind(this);
+
+  }
+  toggle() {
+    this.setState(prevState => ({
+      modal: !prevState.modal
+    }));
   }
 
 
-  //Submit button function
+
+
+
+// getting dropdown values from graph panel
+  getDropdownValue=(value)=>{
+    console.log("dropdon value",value)
+  }
+
+  handleChangeModal=(e)=>{
+    this.state_name = e.target.value
+  }
+
+
+  //Save State button function
+
+saveState = () =>{
+  this.setState(prevState => ({
+    modal: !prevState.modal
+  }));
+  var saved_state_name = this.state_name
+  var tableData=this.data
+  console.log("tableData", tableData)
+  var slidersData=this.context.sliderData
+  console.log("slider data", slidersData)
+  var dropdownData=this.context.selectedDropdown
+  console.log("dropdown values",dropdownData)
+  var input = this.state.input
+  var output = this.state.output
+  var constraint = this.state.constraint
+
+  console.log("INPUT VALUES",input, output, constraint)
+  var other_data = {'state_name':saved_state_name,'input':input,'output':output,'constraint':constraint,"dropdown":dropdownData}
+
+  var promises = [Api.setTableData(tableData),Api.setSliderData(slidersData),Api.setOtherData(other_data)]
+  // Promise.all(promises)
+  // .then((response) => {
+
+  // })
+  // .catch((error) => {
+
+  // })
+}
+
+
+
+
   handlesubmit = (event) => {
     event.preventDefault()
     var input = parseInt(this.state.input)
@@ -215,7 +273,8 @@ class Panel extends React.PureComponent {
       active_slider_table_data: {},
       ymax_arr: this.state.ymax_arr,
       getRowFromClickOnGraphDot: this.getRowFromClickOnGraphDot,
-      getSelectedDot: this.getSelectedDot
+      getSelectedDot: this.getSelectedDot,
+      getDropdownValue:this.getDropdownValue
     }
 
     if (selectedSliderIndex != -1) {
@@ -273,7 +332,7 @@ class Panel extends React.PureComponent {
                           />
                           <p />
                           <Button outline color="primary" onClick={this.importCSV} style={{ marginLeft: '15px' }} size="sm">Submit</Button>{' '}
-                          <Button outline color="success" style={{ marginLeft: '15px' }} size="sm">Save File</Button>{' '}
+                          <Button outline color="success" style={{ marginLeft: '15px' }} onClick={this.toggle} size="sm">Save File</Button>{' '}
                           <Button outline color="danger" style={{ marginLeft: '15px' }} size="sm">Open Saved Data</Button>
                         </Row>
                         <Form >
@@ -304,6 +363,21 @@ class Panel extends React.PureComponent {
               </Row>
             </Col>
           </Row>
+          <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+          <ModalHeader toggle={this.toggle}>Modal title</ModalHeader>
+          <ModalBody>
+          <FormGroup row>
+          <Label for="exampleEmail" sm={4}>File name :</Label>
+          <Col sm={8}>
+            <Input type="text" name="text" id="save-state" placeholder="File name" onChange={this.handleChangeModal}/>
+          </Col>
+        </FormGroup>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.saveState}>Save</Button>{' '}
+            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
         </React.Fragment>
       </div>
 

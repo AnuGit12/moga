@@ -64,6 +64,9 @@ class GraphMOga extends React.Component {
           xValue:x
       }, () => {
         }); 
+        this.context.updateState({ selectedDropdown: {1: e.currentTarget.textContent, 2: this.state.selectValue2 } });
+        // this.props.propsData.getDropdownValue(e.currentTarget.textContent)
+        
       };
     
     handleChange2 =(e) =>{
@@ -78,6 +81,10 @@ class GraphMOga extends React.Component {
     }, () => {
         this.setData()
       }); 
+      // this.props.propsData.getDropdownValue(e.currentTarget.textContent)
+      this.context.updateState({ selectedDropdown: {1: this.state.selectValue1, 2: e.currentTarget.textContent } });
+
+
  
   };
 
@@ -230,6 +237,7 @@ class GraphMOga extends React.Component {
 
         }
          var slider_val =this.context.sliderData.find(val => val[this.context.activeSliderName]);
+         debugger;
         if (slider_val) {
           var point1= Object.values(slider_val)[0].point1
           var point2= Object.values(slider_val)[0].point2
