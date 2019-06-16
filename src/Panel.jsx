@@ -3,8 +3,7 @@ import { Card, Button, CardTitle, CardText, Row, Col, InputGroup, InputGroupAddo
 import './style.css'
 import TableData from './table.jsx';
 import Papa from 'papaparse';
-import Graph from './graph.jsx'
-import SliderProvider from './context/sliderProvider.jsx';
+
 
 import SliderContext from './context/sliderContext';
 
@@ -25,7 +24,6 @@ class Panel extends React.PureComponent {
       selected_dots: []
     };
 
-    this.key = [];
     this.data = [];
     this.updateData = this.updateData.bind(this);
   }
@@ -37,7 +35,7 @@ class Panel extends React.PureComponent {
     var input = parseInt(this.state.input)
     var output = parseInt(this.state.output)
     var constraint = parseInt(this.state.constraint)
-    var length = this.key.length
+    var length = this.context.key.length
     var ymax_arr = []
     var totalVal = input + output + constraint
     if (totalVal == length) {
@@ -53,10 +51,11 @@ class Panel extends React.PureComponent {
       for (let i = 1; i <= constraint; i++) {
         arr_final.push("C" + i)
       }
-      this.key = arr_final;
+
+      this.context.updateData({ ymax_arr })
+      this.context.updateState({ key: arr_final });
 
       this.setState({
-        ymax_arr: ymax_arr,
         processing: true
       }, () => {
         var temp_data = [];
@@ -120,9 +119,6 @@ class Panel extends React.PureComponent {
           //     }
           //   })
           // });
-
-          debugger;
-
           this.setState({ processing: false });
           this.context.updateState({ sliderData: temp_data });
         }, 0);
@@ -130,44 +126,6 @@ class Panel extends React.PureComponent {
     } else {
       alert("value did not match")
     }
-  }
-
-
-  // setting selecting dot's id by lasso seelctor in state to use in rowFunction
-  getSelectedDot = (mySelectedArray) => {
-    this.setState({
-      selected_dots: mySelectedArray
-    })
-  }
-
-
-  //setting clicked dot's id in state to use in rowFunction
-  getRowFromClickOnGraphDot = (rowId) => {
-    this.setState({ selected_dots: [...this.state.selected_dots, rowId.row_id] })
-  }
-
-
-  //getting selected slider values
-  setValueFromSlider = (sliderName, value) => {
-    var slider_data = this.context.sliderData;
-    var slider_val = slider_data.find(val => val[sliderName])
-    let selected_slider_data = Object.assign({}, this.state.selected_slider_data);
-
-    if (value) {
-      slider_val[sliderName]['point1'] = value[0]
-      slider_val[sliderName]['point2'] = value[1]
-      slider_val[sliderName]['point3'] = value[2]
-      slider_val[sliderName]['point4'] = value[3]
-      slider_val[sliderName]['point5'] = value[4]
-
-      selected_slider_data.name = sliderName
-      selected_slider_data.point1 = value[0]
-      selected_slider_data.point2 = value[1]
-      selected_slider_data.point3 = value[2]
-      selected_slider_data.point4 = value[3]
-      selected_slider_data.point5 = value[4]
-    }
-    this.setState({ slider_data, selected_slider_data })
   }
 
   handleChange = event => {
@@ -196,40 +154,23 @@ class Panel extends React.PureComponent {
     };
 
     this.data = data;
-    this.key = arr;
+    this.context.updateData({ data });
+    this.context.updateState({ key: arr });
 
     this.setState({
       processing: false
     })
   }
 
-
-
   render() {
-    var selectedSliderIndex = (this.key).indexOf(this.context.activeSliderName),
-      contentMarkup = null;
-
-    let props = {
-      data: this.data,
-      length: this.key,
-      setValueFromSlider: this.setValueFromSlider,
-      selected_slider_data: this.state.selected_slider_data,
-      active_slider_table_data: {},
-      ymax_arr: this.state.ymax_arr,
-      getRowFromClickOnGraphDot: this.getRowFromClickOnGraphDot,
-      getSelectedDot: this.getSelectedDot
-    }
-
-    if (selectedSliderIndex != -1) {
-      props.active_slider_table_data = this.data[selectedSliderIndex]
-    }
-
+    var contentMarkup = null;
+    console.log(this.props, 'propsss');
     var contentMarkup;
 
     if (this.state.processing) {
       contentMarkup = (
-        <div class="spinner tblscrl">
-          <div class="lds-roller">
+        <div className="spinner tblscrl">
+          <div className="lds-roller">
             <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
           </div>
         </div>
@@ -242,68 +183,61 @@ class Panel extends React.PureComponent {
             <thead style={{ backgroundColor: '#80bfff', borderColor: '#333' }}>
               <tr>
                 <th>#</th>
-                {this.key.map((item) => <th>{item}</th>)}
+                {this.context.key.map((item) => <th>{item}</th>)}
               </tr>
             </thead>
-            <TableData data={this.data} selected_dots={this.state.selected_dots} />
+            <TableData data={this.data} selected_dots={this.context.selected_dots} />
           </Table>
         </div>
       )
     }
 
     return (
-          <Row>
-            <Col xs="12">
-              <Row>
-                <Col md="12">
-                  <Card body outline color="primary">
-                    <div className="App">
-                      <div>
-                        <h4>Import moga file</h4>
-                        <Row style={{ marginBottom: '15px' }}>
-                          <input className="csv-input"
-                            type="file"
-                            ref={input => {
-                              this.filesInput = input;
-                            }}
-                            name="file"
-                            placeholder={null}
-                            onChange={this.handleChange}
-                            style={{ marginLeft: '15px' }}
-                          />
-                          <p />
-                          <Button outline color="primary" onClick={this.importCSV} style={{ marginLeft: '15px' }} size="sm">Submit</Button>{' '}
-                          <Button outline color="success" style={{ marginLeft: '15px' }} size="sm">Save File</Button>{' '}
-                          <Button outline color="danger" style={{ marginLeft: '15px' }} size="sm">Open Saved Data</Button>
-                        </Row>
-                        <Form >
-                          <Row>
-                            <InputGroup size="sm" style={{ width: '25%', marginLeft: '15px' }}>
-                              <InputGroupAddon addonType="prepend">No of Input</InputGroupAddon>
-                              <Input name="input" onChange={e => this.setState({ input: e.target.value })} />
-                            </InputGroup>
-                            <InputGroup size="sm" style={{ width: '25%', marginLeft: '15px' }}>
-                              <InputGroupAddon addonType="prepend">No of Output</InputGroupAddon>
-                              <Input name="output" onChange={e => this.setState({ output: e.target.value })} />
-                            </InputGroup>
-                            <InputGroup size="sm" style={{ width: '25%', marginLeft: '15px' }}>
-                              <InputGroupAddon addonType="prepend">No of Constraints</InputGroupAddon>
-                              <Input name="constraints" onChange={e => this.setState({ constraint: e.target.value })} />
-                            </InputGroup>
-                            <Button onClick={e => this.handlesubmit(e)} outline type="submit" color="success" style={{ marginLeft: '15px' }} size="sm">Validate</Button>
-                          </Row>
-                        </Form>
-                      </div>
-                      {contentMarkup}
-                    </div>
-                  </Card>
-                </Col>
-                {/* <Col xs="6">
-                  <Graph  {...props} />
-                </Col> */}
-              </Row>
-            </Col>
-          </Row>
+      <Row>
+        <Col md="12">
+          <Card body outline color="primary">
+            <div className="App">
+              <div>
+                <h4>Import moga file</h4>
+                <Row style={{ marginBottom: '15px' }}>
+                  <input className="csv-input"
+                    type="file"
+                    ref={input => {
+                      this.filesInput = input;
+                    }}
+                    name="file"
+                    placeholder={null}
+                    onChange={this.handleChange}
+                    style={{ marginLeft: '15px' }}
+                  />
+                  <p />
+                  <Button outline color="primary" onClick={this.importCSV} style={{ marginLeft: '15px' }} size="sm">Submit</Button>{' '}
+                  <Button outline color="success" style={{ marginLeft: '15px' }} size="sm">Save File</Button>{' '}
+                  <Button outline color="danger" style={{ marginLeft: '15px' }} size="sm">Open Saved Data</Button>
+                </Row>
+                <Form >
+                  <Row>
+                    <InputGroup size="sm" style={{ width: '25%', marginLeft: '15px' }}>
+                      <InputGroupAddon addonType="prepend">No of Input</InputGroupAddon>
+                      <Input name="input" onChange={e => this.setState({ input: e.target.value })} />
+                    </InputGroup>
+                    <InputGroup size="sm" style={{ width: '25%', marginLeft: '15px' }}>
+                      <InputGroupAddon addonType="prepend">No of Output</InputGroupAddon>
+                      <Input name="output" onChange={e => this.setState({ output: e.target.value })} />
+                    </InputGroup>
+                    <InputGroup size="sm" style={{ width: '25%', marginLeft: '15px' }}>
+                      <InputGroupAddon addonType="prepend">No of Constraints</InputGroupAddon>
+                      <Input name="constraints" onChange={e => this.setState({ constraint: e.target.value })} />
+                    </InputGroup>
+                    <Button onClick={e => this.handlesubmit(e)} outline type="submit" color="success" style={{ marginLeft: '15px' }} size="sm">Validate</Button>
+                  </Row>
+                </Form>
+              </div>
+              {contentMarkup}
+            </div>
+          </Card>
+        </Col>
+      </Row>
     )
   };
 };

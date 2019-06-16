@@ -1,5 +1,5 @@
 //import * as d3 from 'd3';
-import React, { useState,useContext } from 'react';
+import React from 'react';
 import './style.css'
 import {  Row, Col,Button, ButtonGroup} from 'reactstrap';
 import { DropdownToggle, DropdownMenu, DropdownItem , UncontrolledButtonDropdown,Label} from 'reactstrap';
@@ -36,9 +36,9 @@ class GraphMOga extends React.Component {
 
     setData = () =>{
       const { xValue, yValue } = this.state;
-      var index_of_slider = (this.props.propsData.length).indexOf(this.context.activeSliderName)
+      var index_of_slider = (this.context.key).indexOf(this.context.activeSliderName)
       var slider_col = []
-      this.props.propsData.data.map((item, key) =>
+      this.context.data.map((item, key) =>
         slider_col.push(item[index_of_slider])
        )
       let temp_data= xValue.map((x, i) => ({ x, y: yValue[i]}))
@@ -55,21 +55,21 @@ class GraphMOga extends React.Component {
 
     handleChange1 =(e) =>{
       let x=[]
-        var len1 = this.props.propsData.length.indexOf(e.currentTarget.textContent)
-        this.props.propsData.data.map((item, key) =>
+        var len1 = this.context.key.indexOf(e.currentTarget.textContent)
+        this.context.data.map((item, key) =>
             x.push(item[len1])
         )
         this.setState({
           selectValue1:e.currentTarget.textContent,
           xValue:x
       }, () => {
-        }); 
+        });
       };
     
     handleChange2 =(e) =>{
       let y=[]
-      var len2 = this.props.propsData.length.indexOf(e.currentTarget.textContent)
-      this.props.propsData.data.map((item, key) =>
+      var len2 = this.context.key.indexOf(e.currentTarget.textContent)
+      this.context.data.map((item, key) =>
         y.push(item[len2])
         )
        this.setState({
@@ -77,7 +77,7 @@ class GraphMOga extends React.Component {
         yValue:y
     }, () => {
         this.setData()
-      }); 
+      });
  
   };
 
@@ -86,19 +86,19 @@ class GraphMOga extends React.Component {
 
   YmaxCall =()=>{
     console.log("data++", this.state.data)
-    var csvData = this.props.propsData.data
-    var ySlider =  this.props.propsData.ymax_arr
+    var csvData = this.context.data
+    var ySlider =  this.context.ymax_arr
     var ymaxData =[]
     
 
-    for (var j=0;j<this.props.propsData.ymax_arr.length; j++){
+    for (var j=0;j<this.context.ymax_arr.length; j++){
       var k, yhandle1, yhandle2 , current_value
       var addition_term
       var multiplication_term
 
          var ydata = []
-          var len2 = this.props.propsData.length.indexOf( this.props.propsData.ymax_arr[j])
-          this.props.propsData.data.map((item, key) =>{
+          var len2 = this.context.key.indexOf( this.context.ymax_arr[j])
+          this.context.data.map((item, key) =>{
             current_value = item[len2]
             
             var slider_val = this.context.sliderData.find(val => val[ySlider[j]]);
@@ -166,7 +166,7 @@ class GraphMOga extends React.Component {
   }
          ymaxData.map((item,key)=>{
             var data_y1=[]
-                for(var j=0; j<this.props.propsData.ymax_arr.length;j++){
+                for(var j=0; j<this.context.ymax_arr.length;j++){
                   data_y1.push(ymaxData[key][j])
                 }
           })
@@ -215,21 +215,19 @@ class GraphMOga extends React.Component {
 
         var graphData = this.state.data;
         var selectDot = (d) =>{
-          this.props.propsData.getSelectedDot(d)
+          this.context.getSelectedDot(d)
 
         }
         var clickDot = (d) =>{
-         this.props.propsData.getRowFromClickOnGraphDot(d)
+         this.context.getRowFromClickOnGraphDot(d)
       }
 
-
-        var index_of_slider = (this.props.propsData.length).indexOf(this.context.activeSliderName)
+        var index_of_slider = (this.context.key).indexOf(this.context.activeSliderName)
         var graphdatanew = graphData.map((obj,i)=> ({ ...obj, 'row_id': i }))
-         if(this.props.propsData.data){
-          graphdatanew.map((val,i) => val.slider_col = this.props.propsData.data[i][index_of_slider])
-
+         if(this.context.data){
+          graphdatanew.map((val,i) => val.slider_col = this.context.data[i][index_of_slider])
         }
-         var slider_val =this.context.sliderData.find(val => val[this.context.activeSliderName]);
+        var slider_val =this.context.sliderData.find(val => val[this.context.activeSliderName]);
         if (slider_val) {
           var point1= Object.values(slider_val)[0].point1
           var point2= Object.values(slider_val)[0].point2
@@ -237,7 +235,7 @@ class GraphMOga extends React.Component {
           var point4= Object.values(slider_val)[0].point4
           var point5= Object.values(slider_val)[0].point5
         }
-        
+
         var tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("background", "red")
@@ -246,10 +244,10 @@ class GraphMOga extends React.Component {
         const height = 400,
         width = 500,
         margins = {top: 20, right: 100, bottom: 50, left: 50};
-        const xscale1 = Math.min.apply(Math,this.state.xValue.map(Number))
-        const xscale2 = Math.max.apply(Math,this.state.xValue.map(Number))
-        const yscale1 = Math.min.apply(Math,this.state.yValue.map(Number))
-        const yscale2 = Math.max.apply(Math,this.state.yValue.map(Number))
+        const xscale1 = _.min(this.state.xValue);
+        const xscale2 = _.max(this.state.xValue);
+        const yscale1 = _.min(this.state.yValue);
+        const yscale2 = _.max(this.state.yValue);
 
         const chart = d3.select('.chart')
           .attr('width', width + margins.left + margins.right)
@@ -270,8 +268,8 @@ class GraphMOga extends React.Component {
           .enter().append('circle')
           .attr('r', r)
           .attr("id", function(d){return d["row_id"]})
-          .attr('cx', d => {return xScale(d.x); })
-          .attr('cy', d => {return yScale(d.y)})
+          .attr('cx', d => {return xScale(Number(d.x)); })
+          .attr('cy', d => {return yScale(Number(d.y)); })
           .on("click", function(d){
             d['row_id']= d3.select(this).attr("id")
             clickDot(d)
@@ -405,7 +403,6 @@ class GraphMOga extends React.Component {
          )
       )
 
-      if (this.context.sliderData.length) debugger;
       const buttonNames = _.flatten(_.map(this.context.sliderData, x => {
         return _.keys(x);
       }))
@@ -414,7 +411,8 @@ class GraphMOga extends React.Component {
         <SliderContext.Consumer>
           {context => {
             return (
-              <div className="container">
+              <div className="panelContainer container">
+                  <h4>Graph will be shown here</h4>
                   <Row>
                       <Col sm="6">
                           <Label for="exampleEmail">Select X-Axis Value</Label>
@@ -424,8 +422,8 @@ class GraphMOga extends React.Component {
                               </DropdownToggle>
                               <DropdownMenu>
                                 {
-                                  (this.props.propsData.length || []).map(option => (
-                                        <div key={option.id}>
+                                  (context.key || []).map(option => (
+                                        <div key={option}>
                                         <DropdownItem onClick={this.handleChange1}>{option}</DropdownItem>
                                         </div>
                                     ))
@@ -438,20 +436,18 @@ class GraphMOga extends React.Component {
                           <UncontrolledButtonDropdown style={{marginLeft:'100px'}}>
                               <DropdownToggle caret size="sm">
                               {this.state.selectValue2}
-                        
                               </DropdownToggle>
                               <DropdownMenu>
                               {
-                                
-                              (this.props.propsData.length || []).map(option => (
-                                      <div key={option.id}>
+                              (context.key || []).map(option => (
+                                      <div key={option}>
                                       <DropdownItem onClick={this.handleChange2}>{option}</DropdownItem>
                                       </div>
                                   ))
                               }
                               </DropdownMenu>
                           </UncontrolledButtonDropdown>
-                          </Col> 
+                          </Col>
                   </Row>
                   <Row>
                   

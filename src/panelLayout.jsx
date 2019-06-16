@@ -1,10 +1,16 @@
 import React from "react";
 
-import Panel from "./Panel.jsx";
-
 import { GoldenLayoutComponent } from "./golden-layout/golden-layout";
+
 import SliderContext from "./context/sliderContext.js";
 import SliderProvider from "./context/sliderProvider.jsx";
+
+import Panel from "./Panel.jsx";
+import GraphMoga from './scatterGraph/graph.jsx';
+import Slider from './slider/slider';
+
+import './style.css';
+
 
 class MyComponent extends React.Component {
   constructor(props) {
@@ -25,7 +31,6 @@ class MyComponent extends React.Component {
   };
 
   render() {
-    console.log(this.context, "in component layout");
     return (
       <div>
         <input type="text" value={this.state.value} onChange={this.setValue} />
@@ -36,11 +41,23 @@ class MyComponent extends React.Component {
   }
 }
 
-MyComponent.contextType = SliderContext;
+class SliderList extends React.Component {
+  render() {
+    return (
+      <div className="panelContainer">
+        {this.context.sliderData.map((item,i) => {
+          // fix propsData
+          return <Slider propsData={item} key={i} />
+        })}
+      </div>
+    )
+  }
+}
+
+SliderList.contextType = SliderContext;
 
 class PanelLayout extends React.Component {
   render() {
-    console.log(this.context, "in panel layout");
     return (
       <SliderProvider>
         <GoldenLayoutComponent
@@ -53,7 +70,7 @@ class PanelLayout extends React.Component {
                   {
                     title: "A react component",
                     type: "react-component",
-                    component: "leftPanel"
+                    component: "leftPanel",
                   },
                   {
                     type: "column",
@@ -61,8 +78,7 @@ class PanelLayout extends React.Component {
                       {
                         title: "Another react component",
                         type: "react-component",
-                        component: "testItem",
-                        props: { value: "I'm on the right" }
+                        component: "graphMoga",
                       },
                       {
                         title: "Another react component",
@@ -73,8 +89,7 @@ class PanelLayout extends React.Component {
                       {
                         title: "Another react component",
                         type: "react-component",
-                        component: "testItem",
-                        props: { value: "I'm on the right" }
+                        component: "sliderRange",
                       }
                     ]
                   }
@@ -85,6 +100,8 @@ class PanelLayout extends React.Component {
           registerComponents={myLayout => {
             myLayout.registerComponent("testItem", MyComponent);
             myLayout.registerComponent("leftPanel", Panel);
+            myLayout.registerComponent("graphMoga", GraphMoga);
+            myLayout.registerComponent("sliderRange", SliderList);
           }}
         />
       </SliderProvider>

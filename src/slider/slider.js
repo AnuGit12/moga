@@ -35,16 +35,12 @@ class SliderRange extends Component {
 
   }
 
-  componentDidUpdate() {
-
-  }
-
   handleChange = (e) => {
     e = e.map(function (each_element) {
       return Number(each_element.toFixed(5));
     });
     var new_slider_data = e;
-    this.props.setValueFromSlider(Object.keys(this.props.propsData)[0], new_slider_data);
+    this.context.setValueFromSlider(Object.keys(this.props.propsData)[0], new_slider_data);
 
   }
 

@@ -42,7 +42,20 @@ export class GoldenLayoutComponent extends React.Component {
   goldenLayoutInstance = undefined;
 
   componentDidMount() {
-    console.log(this.props.config, 'configgggg')
+    // var savedState = localStorage.getItem('savedState');
+    // if (savedState !== null) {
+    //   this.goldenLayoutInstance = new GoldenLayout(JSON.parse(savedState));
+    // } else {
+    //   this.goldenLayoutInstance = new GoldenLayout(this.props.config || {}, this.containerRef.current);
+    // }
+
+    // this.goldenLayoutInstance.on('stateChanged', () => {
+    //   setTimeout(() => {
+    //     var state = JSON.stringify(this.goldenLayoutInstance.toConfig());
+    //     localStorage.setItem('savedState', state);
+    //   }, 1000);
+    // });
+
     this.goldenLayoutInstance = new GoldenLayout(
       this.props.config || {},
       this.containerRef.current

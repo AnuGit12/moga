@@ -186,3 +186,8 @@ h1 {
     transform: rotate(360deg);
   }
 }
+
+.panelContainer {
+  height: 100%;
+  overflow: auto;
+}
