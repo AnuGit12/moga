@@ -87,37 +87,6 @@ class Panel extends React.PureComponent {
             });
           });
 
-          // _.forEach(arr_final, (a, j) => {
-          //   temp_data.push({
-          //     [a]: {
-          //       // "min": x1,
-          //       // "max": x2,
-          //       // "point1": x1_1,
-          //       // "point2": x1_2,
-          //       // "point3": x1_3,
-          //       // "point4": x1_4,
-          //       // "point5": x1_5
-          //     }
-          //   });
-          // });
-
-          // _.forEach(this.data, d => {
-          //   var min = _.floor(Number(_.min(d)), 3);   //getting min value of slider
-          //   var max = _.floor(Number(_.max(d)), 3);   //getting max value of slider
-          //   var Xrange = _.floor((max - min), 3);
-          //   var point1 = min + 0.1 * Xrange;  //setting slider handle points values
-          //   var point2 = min + 0.3 * Xrange;  //setting slider handle points values
-          //   var point3 = min + 0.5 * Xrange;  //setting slider handle points values
-          //   var point4 = min + 0.7 * Xrange;  //setting slider handle points values
-          //   var point5 = min + 0.9 * Xrange;  //setting slider handle points values
-            
-          //   _.forEach(arr_final, key => {
-          //     temp_data[i][key] = {
-          //       min, max, point1, point2, point3, point4, point5
-          //     }
-          //   })
-          // });
-          debugger;
           this.setState({ processing: false });
           this.context.updateState({ sliderData: temp_data });
         }, 0);

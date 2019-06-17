@@ -12,27 +12,37 @@ const sliderStyle = {
 };
 
 
-var x1 = -0.4689
-var x2 = -0.152
-var x3 = 0.163
-var x4 = 0.479
-var x5 = 0.7959
-var xmax = 0.954
-var xmin = -0.627
-
-
 class SliderRange extends Component {
   constructor() {
     super();
     this.state = {
-      slider_arr: [xmin, x1, x2, x3, x4, x5, xmax],
-      temp_point_val: [],
       checked: "",
+      point1: undefined,
+      point2: undefined,
+      point3: undefined,
+      point4: undefined,
+      point5: undefined,
+      min: undefined,
+      max: undefined
     };
+
     this.handleChange = this.handleChange.bind(this);
+  }
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    var sliderData = _.values(nextProps.propsData)[0],
+        stateObj = {};
 
+    _.each(sliderData, (value, key) => {
+      if(_.isNil(prevState[key]) && prevState[key] !== value) {
+        stateObj[key] = value;
+      }
+    });
 
+    if (_.size(_.keys(stateObj))) {
+      return stateObj;
+    }
+    return null;
   }
 
   handleChange = (e) => {
@@ -42,15 +52,6 @@ class SliderRange extends Component {
     var new_slider_data = e;
     this.context.setValueFromSlider(Object.keys(this.props.propsData)[0], new_slider_data);
 
-  }
-
-  updateInputValue(evt) {
-    console.log("i am fried=====================" + evt.target.value)
-    const Tempslider_arrr = this.state.slider_arr.slice()
-    Tempslider_arrr[1] = evt.target.value
-    this.setState({
-      inputValue: Tempslider_arrr
-    });
   }
 
   handleChangeSlide(e) {
@@ -83,6 +84,26 @@ class SliderRange extends Component {
     }
   }
 
+  setInputValue(event, pointName) {
+    var value = event.target.value;
+
+    this.setState({ [pointName]: value });
+  }
+
+  setSliderValueFromInput(pointName) {
+    const value =  this.state[pointName],
+          sliderName = _.keys(this.props.propsData)[0];
+
+    var sliderData = this.context.sliderData;
+    var currentSliderData = _.find(sliderData, data => {
+      return _.keys(data)[0] === sliderName;
+    });
+
+    currentSliderData[sliderName][pointName] = value;
+
+    this.context.updateState({ sliderData });
+  }
+
   render() {
     const { propsData } = this.props;
     let selectedClass;
@@ -99,19 +120,29 @@ class SliderRange extends Component {
                 <h5>{Object.keys(propsData)[0]}</h5>
   
                 <InputGroup size="sm" style={{ width: '65px', marginLeft: '120px', marginBottom: '5px' }}>
-                  <Input name="input1" value={Object.values(propsData)[0].point1} onChange={evt => this.updateInputValue(evt)} />
+                  <Input name="input1" disabled={context.activeSliderName != Object.keys(propsData)[0]} value={this.state.point1}
+                    onChange={(e) => this.setInputValue(e, 'point1')}
+                    onBlur={() => this.setSliderValueFromInput('point1')} />
                 </InputGroup>
                 <InputGroup size="sm" style={{ width: '65px', marginLeft: '10px', marginBottom: '5px' }}>
-                  <Input name="input2" value={Object.values(propsData)[0].point2} />
+                  <Input name="input2" disabled={context.activeSliderName != Object.keys(propsData)[0]} value={this.state.point2}
+                    onChange={(e) => this.setInputValue(e, 'point2')}
+                    onBlur={() => this.setSliderValueFromInput('point2')} />
                 </InputGroup>
                 <InputGroup size="sm" style={{ width: '65px', marginLeft: '10px', marginBottom: '5px' }}>
-                  <Input name="input3" value={Object.values(propsData)[0].point3} />
+                  <Input name="input3" disabled={context.activeSliderName != Object.keys(propsData)[0]} value={this.state.point3}
+                    onChange={(e) => this.setInputValue(e, 'point3')}
+                    onBlur={() => this.setSliderValueFromInput('point3')} />
                 </InputGroup>
                 <InputGroup size="sm" style={{ width: '65px', marginLeft: '10px', marginBottom: '5px' }}>
-                  <Input name="input4" value={Object.values(propsData)[0].point4} />
+                  <Input name="input4" disabled={context.activeSliderName != Object.keys(propsData)[0]} value={this.state.point4}
+                    onChange={(e) => this.setInputValue(e, 'point4')}
+                    onBlur={() => this.setSliderValueFromInput('point4')} />
                 </InputGroup>
                 <InputGroup size="sm" style={{ width: '65px', marginLeft: '10px', marginBottom: '5px' }}>
-                  <Input name="input5" value={Object.values(propsData)[0].point5} />
+                  <Input name="input5" disabled={context.activeSliderName != Object.keys(propsData)[0]} value={this.state.point5}
+                    onChange={(e) => this.setInputValue(e, 'point5')}
+                    onBlur={() => this.setSliderValueFromInput('point5')} />
                 </InputGroup>
               </Row>
               <div>
@@ -127,16 +158,21 @@ class SliderRange extends Component {
                           onClick={this.handleChangeSlide.bind(this)} />
                       </Label>
                     </FormGroup>
-  
                   </Col>
                   <Col sm='11' style={{ marginLeft: "50px" }}>
-                    <Row style={{ opacity: context.activeSliderName != Object.keys(propsData)[0] ? '0.3' : '1.0' }}>
+                    <Row>
                       <Col sm='1'>
                         <InputGroup size="sm" style={{ width: '65px', marginLeft: '5px' }}>
-                          <Input name="input" value={Object.values(propsData)[0].min} />
+                          <Input name="input" disabled={context.activeSliderName != Object.keys(propsData)[0]} value={this.state.min}
+                            onChange={(e) => this.setInputValue(e, 'min')}
+                            onBlur={() => this.setSliderValueFromInput('min')} />
                         </InputGroup>
                       </Col>
-                      <Col sm='9' style={{ marginLeft: '40px', width: '100%' }}>
+                      <Col sm='9'
+                        style={{ marginLeft: '40px', width: '100%',
+                                opacity: context.activeSliderName != Object.keys(propsData)[0] ? '0.3' : '1.0'
+                              }}
+                      >
                         <Slider
                           mode={2}
                           step={.01}
@@ -199,7 +235,9 @@ class SliderRange extends Component {
                       </Col>
                       <Col sm='1'>
                         <InputGroup size="sm" style={{ width: '65px' }}>
-                          <Input name="input" value={Object.values(propsData)[0].max} />
+                          <Input name="input" disabled={context.activeSliderName != Object.keys(propsData)[0]} value={this.state.max}
+                            onChange={(e) => this.setInputValue(e, 'max')}
+                            onBlur={() => this.setSliderValueFromInput('max')} />
                         </InputGroup>
                       </Col>
                     </Row>
