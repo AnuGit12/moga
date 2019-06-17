@@ -58,26 +58,22 @@ class Panel extends React.PureComponent {
       this.setState({
         processing: true
       }, () => {
-        var temp_arr = [];
         var temp_data = [];
+        const getMatrixColumn = (arr, n) => _.map(arr, x => x[n]);
 
         setTimeout(() => {
-          // TODO: fix me!!!
           _.forEach(arr_final, (a, j) => {
             var x1, x2, Xrange, x1_1, x1_2, x1_3, x1_4, x1_5
 
-            _.map(this.data, d => {
-              temp_arr.push(d[j])
-              x1 = _.floor(_.min(temp_arr), 3);   //getting min value of slider
-              x2 = _.floor(_.max(temp_arr), 3);   //getting max value of slider
-              Xrange = _.floor((x2 - x1), 3);
-              x1_1 = x1 + 0.1 * Xrange;  //setting slider handle points values
-              x1_2 = x1 + 0.3 * Xrange;  //setting slider handle points values
-              x1_3 = x1 + 0.5 * Xrange;  //setting slider handle points values
-              x1_4 = x1 + 0.7 * Xrange;  //setting slider handle points values
-              x1_5 = x1 + 0.9 * Xrange;  //setting slider handle points values
-            });
-            debugger;
+            var columnArray = getMatrixColumn(this.data, j);
+            x1 = _.floor(_.min(columnArray), 3);   //getting min value of slider
+            x2 = _.floor(_.max(columnArray), 3);   //getting max value of slider
+            Xrange = _.floor((x2 - x1), 3);
+            x1_1 = x1 + 0.1 * Xrange;  //setting slider handle points values
+            x1_2 = x1 + 0.3 * Xrange;  //setting slider handle points values
+            x1_3 = x1 + 0.5 * Xrange;  //setting slider handle points values
+            x1_4 = x1 + 0.7 * Xrange;  //setting slider handle points values
+            x1_5 = x1 + 0.9 * Xrange;  //setting slider handle points values
             temp_data.push({
               [a]: {
                 "min": x1,
