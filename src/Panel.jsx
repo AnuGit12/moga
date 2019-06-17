@@ -58,6 +58,7 @@ class Panel extends React.PureComponent {
       this.setState({
         processing: true
       }, () => {
+        var temp_arr = [];
         var temp_data = [];
 
         setTimeout(() => {
@@ -66,8 +67,9 @@ class Panel extends React.PureComponent {
             var x1, x2, Xrange, x1_1, x1_2, x1_3, x1_4, x1_5
 
             _.map(this.data, d => {
-              x1 = _.floor(Number(_.min(d)), 3);   //getting min value of slider
-              x2 = _.floor(Number(_.max(d)), 3);   //getting max value of slider
+              temp_arr.push(d[j])
+              x1 = _.floor(_.min(temp_arr), 3);   //getting min value of slider
+              x2 = _.floor(_.max(temp_arr), 3);   //getting max value of slider
               Xrange = _.floor((x2 - x1), 3);
               x1_1 = x1 + 0.1 * Xrange;  //setting slider handle points values
               x1_2 = x1 + 0.3 * Xrange;  //setting slider handle points values
@@ -75,7 +77,7 @@ class Panel extends React.PureComponent {
               x1_4 = x1 + 0.7 * Xrange;  //setting slider handle points values
               x1_5 = x1 + 0.9 * Xrange;  //setting slider handle points values
             });
-
+            debugger;
             temp_data.push({
               [a]: {
                 "min": x1,
@@ -119,6 +121,7 @@ class Panel extends React.PureComponent {
           //     }
           //   })
           // });
+          debugger;
           this.setState({ processing: false });
           this.context.updateState({ sliderData: temp_data });
         }, 0);
